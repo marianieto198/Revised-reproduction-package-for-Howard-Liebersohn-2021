@@ -2,5 +2,5 @@
 
 En este repositorio se encuentra el código del paper de Howard & Liebersohn: Why is the rent so darn high? The role of growing demand to live in housing-supply-inelastic cities (2021)
 
-Los códigos estarán divididos por las figuras y tablas del texto, en el anexo llamado “master” se encontrará la guía para ver el código que permite la reproducción de cada tabla y figura.![image](https://user-images.githubusercontent.com/76921580/153800602-bb73b37d-d2ea-47b4-905e-833dafb84ecb.png)
+Los códigos estarán divididos por las figuras y tablas del texto, en el anexo llamado “master” se encontrará la guía para ver el código que permite la reproducción de cada tabla y figura.
 
