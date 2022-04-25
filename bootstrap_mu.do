@@ -1,9 +1,15 @@
-
+/*
+ Author(s): Greg Howard & Jack Liebersohn 
+ Date: 2021
+ 
+ Description: Script para realizar parte de la tabla 3 y A2.
+ */
 set seed 15
 
 
 preserve
 use "..\data\qcew\2000_msa_industry_shares", clear
+// Solo se utilizan datos de las industrias cuyo código sea "31-33" (manufactureras) o "1023" (financieras).
 keep if industry_code=="31-33" | industry_code=="1023"
 keep industryshare msa industry_code
 replace industry_code = "finance" if industry_code=="1023"
@@ -14,7 +20,7 @@ tempfile manuf
 save `manuf'
 restore
 
-
+// Cambiar el esquema de color para las gráficas. S1color para garantizar fondo de la gráfica de color blanco.
 set scheme s1color
 clear all
 run "../dofiles/cpi_contribution_table.do" // run the do-file that creates a program to calculate the migration channel for any particular mu, lambda variables
@@ -33,10 +39,12 @@ local mynumreps 1000
 gen s18lognoi_adj=s18.lognoi_adj if year==2018
 *gen s17loghpi = s17.loghpi if year==2017
 
+// Por MSA (Área Metropolitana) dejar el valor máximo de s18lognoi_adj rent_new y el primer valor de wageshock elasticity unaval WRLURI.
 collapse (max) s18lognoi_adj rent_new (first) wageshock elasticity unaval WRLURI, by(msa)
 
 summ elasticity if rent_new !=.
 local meanelasticity=r(mean)
+// se remplaza la variable elasticity por la desviación de la media de la elasticidad. 
 replace elasticity=elasticity-`meanelasticity'
 
 merge 1:1 msa using `manuf', nogen
@@ -45,13 +53,15 @@ xtile elasticitybin=elasticity, n(10)
 
 *mkspline elasticityspline 10=elasticity, disp pct
 
-
+// Se hacen regresiones del cambio logaritmico de la renta ajustado y de la renta regresado por las variables wageshock interactuando con la elasticidad
+//y se tiene una variable dummy (elasticitybin) que son los sixtiles de elasticidad. 
 reg s18lognoi_adj c.wageshock##c.elasticity, r absorb(elasticitybin)
 *reg s17loghpi c.wageshock##c.elasticity, r absorb(elasticitybin)
 reg rent_new c.wageshock##c.elasticity, r absorb(elasticitybin)
 *reghdfe rent_new c.elasticity##c.wageshock elasticityspline* , noabsorb vce(robust) nocon
 
 cap program drop myreg
+//Se programa la misma regresión anterior para convertir los resultados de los estimadores en escalares.
 program def myreg, eclass
 	qui reg s18lognoi_adj c.wageshock##c.elasticity, r  absorb(elasticitybin)
 	local ratio = -_b[c.wageshock]/_b[c.wageshock#c.elasticity]
@@ -59,6 +69,8 @@ program def myreg, eclass
 	ereturn scalar ratio=`ratio'
 end
 
+//Mediante iteraciones se encuentran los valores de los mu's para encontrar los efectos heterogéneos de la regresión.
+//Sin embargo, no es claro el procedimiento
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
 local mu1=_b[ratio]-(`meanelasticity'+.66667)
