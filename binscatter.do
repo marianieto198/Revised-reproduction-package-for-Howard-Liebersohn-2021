@@ -62,12 +62,12 @@ drop if elasticitybin==.
 //cap graph drop rents
 scatter s18lognoi_adj elasticity2 [w=l18pop] if  elasticity2<10, msym(Oh) || ///
 	scatter s18lognoi_adj_mean elasticity_mean, ///
-	msize(2) c(l) yline(0, lcolor(gs8)) yscale(range(-.5 1)) ylabel(-.5(.5)1) ///
+	msize(2) c(l) yline(0, lcolor(gs8)) lpattern(dash) yscale(range(-.5 1)) ylabel(-.5(.5)1) ///
 	title("Log Rent Change (unadjusted)" "2000-2018 by Housing Supply Elasticity") legend(off) name(rents_unadjusted, replace)
 
 scatter rent_new elasticity2 [w=l18pop] if  elasticity2<10, msym(Oh) || ///
 	scatter rent_new_mean elasticity_mean, ///
-	msize(2) c(l) yline(0, lcolor(gs8)) yscale(range(-.5 1)) ylabel(-.5(.5)1) ///
+	msize(2) c(l) yline(0, lcolor(gs8)) lpattern(dash) yscale(range(-.5 1)) ylabel(-.5(.5)1) ///
 	title("Log Rent Change, 2000-2018 by Housing Supply Elasticity") legend(off) name(rents, replace)
 	
 qui sum s17loghpi, det
@@ -80,7 +80,7 @@ local elastmean = r(mean)
 
 scatter s18logpop elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
 	|| scatter s18logpop_mean elasticity_mean, ///
-	msize(2) c(l) yline(0, lcolor(gs8))  ///
+	msize(2) c(l) yline(0, lcolor(gs8)) lpattern(dash)  ///
 	title("Log Population Change, 2000-2018 by Housing Supply Elasticity") legend(off) name(pop, replace) 
 
 //Se combinan las tres gráficas obtenidas previamente. 
