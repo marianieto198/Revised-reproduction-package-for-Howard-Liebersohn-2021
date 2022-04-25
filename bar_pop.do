@@ -121,15 +121,15 @@ restore
 //Comandos para combinar gráficas creadas previamente con los datos de interes. Una corrección para los autores es hacer que las siguientes lineas de código
 //no sean comentarios o que adviertan que es necesario utilizar estas lineas de código para obtener la figura que se encuentra en el paper.
 
-//graph combine  Regulation_s18lognoi UnavailableLand_s18lognoi Elasticity_s18lognoi Regulation_s18logpop UnavailableLand_s18logpop Elasticity_s18logpop, row(2) ycommon
-// graph combine  Elasticity_rent_new Elasticity_s18logpop, row(1) ycommon
-// graph export "../exhibits/bargraph.pdf", as(pdf) replace
-//
-// graph combine  Elasticity_s18lognoi, row(1) ycommon
-// graph export "../exhibits/bargraph_robust.pdf", as(pdf) replace
-//
-// graph combine  GKElasticity_rent_new GKElasticity_s18logpop, row(1) ycommon
-// graph export "../exhibits/bargraph_gk.pdf", as(pdf) replace
+graph combine  Regulation_s18lognoi UnavailableLand_s18lognoi Elasticity_s18lognoi Regulation_s18logpop UnavailableLand_s18logpop Elasticity_s18logpop, row(2) ycommon
+graph combine  Elasticity_rent_new Elasticity_s18logpop, row(1) ycommon
+graph export "../exhibits/bargraph.pdf", as(pdf) replace
+
+graph combine  Elasticity_s18lognoi, row(1) ycommon
+graph export "../exhibits/bargraph_robust.pdf", as(pdf) replace
+
+graph combine  GKElasticity_rent_new GKElasticity_s18logpop, row(1) ycommon
+graph export "../exhibits/bargraph_gk.pdf", as(pdf) replace
 
 
 graph display Elasticity_rent_new
