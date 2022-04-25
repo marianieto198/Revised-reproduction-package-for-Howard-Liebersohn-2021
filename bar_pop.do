@@ -68,6 +68,9 @@ drop elasticity_fake
 // Generar lables para que en las gráficas los nombres de las variables sean entendibles.
 label var s18lognoi "Log Rent Change (unadjusted), 2000-2018"
 label var rent_new "Log Rent Change, 2000-2018"
+label var s18logpop "Log population change 2000-2018"
+label var invelasticity "1/ elasticity of the housing supply"
+
 // Loop para que con cada una de las tres variables mencionadas anteriormente se graficar el cambio de la renta ajustado y no ajustado para el promedio
 //de los valores por encima de la media de acuerdo con las clasificaciones que se hallaron previamente
 foreach var of varlist rent_new s18lognoi {
