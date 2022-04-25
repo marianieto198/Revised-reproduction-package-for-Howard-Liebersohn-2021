@@ -56,8 +56,10 @@ xtile elasticitybin=elasticity, n(10)
 // Se hacen regresiones del cambio logaritmico de la renta ajustado y de la renta regresado por las variables wageshock interactuando con la elasticidad
 //y se tiene una variable dummy (elasticitybin) que son los sixtiles de elasticidad. 
 reg s18lognoi_adj c.wageshock##c.elasticity, r absorb(elasticitybin)
+outreg2 using reg1.doc, ctitle(Model 1)
 *reg s17loghpi c.wageshock##c.elasticity, r absorb(elasticitybin)
 reg rent_new c.wageshock##c.elasticity, r absorb(elasticitybin)
+outreg2 using reg2.doc, append ctitle(Model 2)
 *reghdfe rent_new c.elasticity##c.wageshock elasticityspline* , noabsorb vce(robust) nocon
 
 cap program drop myreg
