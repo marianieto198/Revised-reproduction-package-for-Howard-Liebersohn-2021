@@ -1,5 +1,12 @@
 
-
+/*
+ Author(s): Greg Howard & Jack Liebersohn 
+ Date: 2021
+ 
+ Description: Script para realizar la figura A.1 del apéndice.
+ */
+ 
+ // Cambiar el esquema de color para las gráficas. S1color para garantizar fondo de la gráfica de color blanco.
 set scheme s1color
 clear all
 use "../data/combineddata", clear
@@ -7,9 +14,12 @@ replace msa=9999 if msa==.
 //merge m:1 msa using "../data/acs_wages/processed_data2", nogen
 //gen collegeshock=wage_college_resid2010-wage_college_resid2000
 gen elasticity2=elasticity
+// Teniendo en cuenta que las regiones que no tienen puntaje MSA son, en general, pequeñas y poco pobladas se les asigna un valor de elasticidad igual al
+//la elasticidad de los lugares que pertenecen al percentil 99.
 replace elasticity2=5.35 if msa==9999
 keep if elasticity2!=.
 
+// Establecer que se está trabajando con datos de panel. 
 xtset msa year
 
 gen s17loghpi = s17.loghpi-.3532 if year==2017
@@ -17,13 +27,15 @@ gen s17loghpi = s17.loghpi-.3532 if year==2017
 gen s18logpop = fs18.logpop if year==2017
 gen s18lognoi_adj=fs18.lognoi_adj if year==2017
 gen l18pop=l17.pop if year==2017
-
+//Generar elasticidad3 que es igual al valor negativo de la elasticidad 2.
 gen elasticity3=-elasticity2
+//Crear una variable que contenga los sixtiles de la variables elasticidad3.
 xtile elasticitybin= elasticity3 [w=l18pop] , n(6) // if s18lognoi_adj!=., n(6)
 
 
 preserve
 
+//Colapsar las variables relevantes por los sixtiles y se renombran para mayor claridad.
 collapse (mean) rent_new s18loghomeowner s18logcollege s18lognoncollege s18logusborn s18lognoncitizen s18logforeignborn s18logrenter s17loghpi s18lognoi_adj s18logpop  elasticity2  [w=l18pop], by(elasticitybin)
 
 rename s18lognoi_adj s18lognoi_adj_mean
@@ -40,6 +52,8 @@ rename s18logrenter s18logrenter_mean
 rename s18logpop s18logpop_mean
 rename s18loghomeowner s18loghomeowner_mean
 rename s18logusborn s18logusborn_mean
+
+//Guardar los promedios y los pegan a la base original de sixtiles.
 tempfile bins
 save `bins'
 restore
@@ -50,6 +64,9 @@ drop if elasticitybin==.
 
 *s18logrenter s18lognoncitizen s18logforeignborn
 
+//Código para generar gráficas de dispersión entre el cambio de la población, el cambio de la renta y el cambio de la renta ajustada con los sixtiles de elasticidad.
+
+//cap graph drop rents
 //cap graph drop rents
 scatter s18lognoncollege elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
 	|| scatter s18lognoncollege_mean elasticity_mean, ///
@@ -97,5 +114,6 @@ scatter s18logusborn elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
 // graph combine pop noncitizen foreignborn usborn owner  renter college noncollege , row(4) col(2) xsize(7) ysize(12)
 // graph export "../exhibits/binscatter_immigrants_renters_extended.pdf", as(pdf) replace
 
+//Se combinan las tres gráficas obtenidas previamente. 
 graph combine foreignborn usborn owner  renter college noncollege , ycommon row(3) col(2) xsize(7) ysize(12)
 graph export "../exhibits/binscatter_immigrants_renters.pdf", as(pdf) replace
