@@ -106,13 +106,13 @@ scatter s18logusborn elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
 	
 //cap graph drop housing
 
-// scatter s18logpop elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
-// 	|| scatter s18logpop_mean elasticity_mean, ///
-// 	msize(2) c(l) yline(0, lcolor(gs8))  ///
-// 	ytitle("Log Population Change") title("Total Population") legend(off) name(pop, replace)   nodraw
-//
-// graph combine pop noncitizen foreignborn usborn owner  renter college noncollege , row(4) col(2) xsize(7) ysize(12)
-// graph export "../exhibits/binscatter_immigrants_renters_extended.pdf", as(pdf) replace
+ scatter s18logpop elasticity2 [w=l18pop]if  elasticity2<10, msym(Oh) ///
+ 	|| scatter s18logpop_mean elasticity_mean, ///
+ 	msize(2) c(l) yline(0, lcolor(gs8))  ///
+	ytitle("Log Population Change") title("Total Population") legend(off) name(pop, replace)   nodraw
+
+graph combine pop noncitizen foreignborn usborn owner  renter college noncollege , row(4) col(2) xsize(7) ysize(12)
+graph export "../exhibits/binscatter_immigrants_renters_extended.pdf", as(pdf) replace
 
 //Se combinan las tres gráficas obtenidas previamente. 
 graph combine foreignborn usborn owner  renter college noncollege , ycommon row(3) col(2) xsize(7) ysize(12)
