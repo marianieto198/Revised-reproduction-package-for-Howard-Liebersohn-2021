@@ -97,7 +97,7 @@ program def myreg2, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
-// Ahora es necesrio tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+// Ahora es necesario tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
 //con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados. 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg2
@@ -161,7 +161,7 @@ restore
 // Gorback-keys elasticity
 //
 //En está sección se realiza la tabla 2 del apendice A. En este caso los valores de mu resultantes de estas especificaciones son uniformemente largas
-//SE utiliza entonces la medida de elasticidad de Gorback-Keys (2020)
+//Se utiliza entonces la medida de elasticidad de Gorback-Keys (2020)
 
 cap gen incomechange = wageshock 
 cap gen incomechange_gkelasticity=incomechange*gk_elasticity
@@ -176,6 +176,18 @@ program def myreg, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
+
+//El mismo procedimiento se puede realizar mediante el siguiente código
+// cap program drop myreg
+program def myreg, eclass
+	args name
+	areg `name' incomechange gk_elasticity incomechange_gkelasticity,  absorb(gkbin), fe // o en su defecto xtreg `name' incomechange gk_elasticity incomechange_gkelasticity, fe
+	local ratio = -_b[c.incomechange]/_b[incomechange_gkelasticity]
+	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
+	ereturn scalar ratio=`ratio'
+end//
+
+
 
 foreach name in rent_new rent_old {
 
