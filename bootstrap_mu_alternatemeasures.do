@@ -201,3 +201,23 @@ di "morecontrols newrent manufacturing mean: `mu4' p5: `mu4_p5' p10: `mu4_p10'"
 // GK elasticity
 disp "gk newrent: `rent_old_gkmean' p5: `rent_old_gkp5' p10: `rent_old_gkp10'"
 di "gk oldrent: `rent_new_gkmean' p5: `rent_new_gkp5' p10: `rent_new_gkp10'"
+
+//RESULTADOS 
+//disp "morecontrols unadjusted wageshock mean: `mu1' p5: `mu1_p5' p10: `mu1_p10'"
+//morecontrols unadjusted wageshock mean: 10.34744543830553 p5: -.7813625674495199 p10: .0768783945789835
+
+//disp "morecontrols unadjusted manufacturing mean: `mu2' p5: `mu2_p5' p10: `mu2_p10'"
+//morecontrols unadjusted manufacturing mean: 99996.79630705307 p5: 7.141871895288517 p10: 149.315975632166
+
+//disp "morecontrols newrent wageshock mean: `mu3' p5: `mu3_p5' p10: `mu3_p10'"
+//morecontrols newrent wageshock mean: 99996.79630705307 p5: 8.492782558893254 p10: 15.41701361129194
+
+//di "morecontrols newrent manufacturing mean: `mu4' p5: `mu4_p5' p10: `mu4_p10'"
+//morecontrols newrent manufacturing mean: 99996.79630705307 p5: 7.911490883325627 p10: 19.6463293690434
+
+//disp "gk newrent: `rent_old_gkmean' p5: `rent_old_gkp5' p10: `rent_old_gkp10'"
+gk newrent: 99996.79630705307 p5: -2.989854384566257 p10: -2.783291939998577
+
+//di "gk oldrent: `rent_new_gkmean' p5: `rent_new_gkp5' p10: `rent_new_gkp10'"
+gk oldrent: 99996.79630705307 p5: -2.931214932704876 p10: -2.437134001756618
+
