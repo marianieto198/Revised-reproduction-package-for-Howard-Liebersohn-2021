@@ -131,13 +131,17 @@ local dlogRmean_CPI34=`dlogRmean_CPI'/4*3
 //Se empieza a construir la figura 3.B definiendo los intervalos de confianza y las líneas que representarán los diferentes niveles de lambda para 
 //interpretacion del lector. En este caso, los autores escogieron 0, 1 y 2/3 (el recomendado por la literatura)
 
-line geochannel_CPI mu if lambda==0, lpattern(shortdash) || line geochannel_CPI mu if abs(lambda-.666666)<.01 || line geochannel_CPI mu if lambda==1, lpattern(dash) ///
-	|| scatteri `muinftylambda0' `maxmuplusone', color(forest_green) || scatteri `muinftylambda23' `maxmuplusone', color(orange) || scatteri `muinftylambda1' `maxmuplusone', color(navy) ///
-	|| line dlogRmean_CPI mu, yaxis(2) lcolor(maroon) lpattern(dot) ytitle("Contribution of Migration Demand") xtitle("{&mu}") ///
-	legend(order(1 2 3 7) label(1 "{&lambda}=0") label(2 "{&lambda}=2/3") label(3 "{&lambda}=1") label(7 "Total Rent Increase")) ///
-	yscale(range(-.02 .2)) ylabel(#4) yline(0, lcolor(gs10)) ///
-	xline(`maxmuplushalf', lcolor(gs10) lpattern(dot)) xlabel( 0 "0" 5 "5" 10 "10" 11 "{&infinity}") ///
-	yscale(range(-.02 .2) axis(2)) ylabel(0 "0" `dlogRmean_CPI14' "25" `dlogRmean_CPI12' "50" `dlogRmean_CPI34' "75" `dlogRmean_CPI' "100", axis(2)) ytitle("Percent of Rent Increase", axis(2))
+**El resultado que ofrece el siguiente código no es el mismo que se observa en el paper por unos detalles de estilo, por lo tanto, se corrige el código 
+**para que sea completamente replicable.
+
+
+line geochannel_CPI mu if lambda==0, lpattern(solid) || line geochannel_CPI mu if abs(lambda-.666666)<.01 || //
+line geochannel_CPI mu if lambda==1, lpattern(solid) ||  scatteri `muinftylambda0' `maxmuplusone', color(forest_green)  || scatteri `muinftylambda23' `maxmuplusone', color(orange)//
+|| scatteri `muinftylambda1' `maxmuplusone', color(navy) || line dlogRmean_CPI mu, yaxis(2) lcolor(maroon) lpattern(dash) //
+ytitle("Contribution of Migration Demand") xtitle("{&mu}") legend(order(1 2 3 7) label(1 "{&lambda}=0") label(2 "{&lambda}=2/3") //
+label(3 "{&lambda}=1") label(7 "Total Rent Increase")) yscale(range(-.02 .2)) ylabel(#4) yline(0, lcolor(gs10)) //
+xline(`maxmuplushalf', lcolor(gs10) lpattern(solid)) xlabel( 0 "0" 5 "5" 10 "10" 11 "{&infinity}") yscale(range(-.02 .2) axis(2)) //
+ylabel(0 "0" `dlogRmean_CPI14' "25" `dlogRmean_CPI12' "50" `dlogRmean_CPI34' "75" `dlogRmean_CPI' "100", axis(2)) ytitle("Percent of Rent Increase", axis(2))
 
 	
 graph export "../exhibits/contribution_cpi.pdf", as(pdf) replace
