@@ -97,7 +97,33 @@ local mu3_p5=r(p5)-(`meanelasticity'+.66667)
 local mu3_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
-//
+//Para simplificar lo anterior y presentar una manera alternativa de llegar al mismo resultado se propone:
+foreach x of varlist $variabless{ 
+global variabless s18lognoi_adj rent_new
+cap program drop myreg`x'
+program def myreg`x', eclass
+	qui reg `x' c.wageshock#c.elasticity wageshock, r
+	local ratio`x' = -_b[c.wageshock]/_b[c.wageshock#c.elasticity]
+	local ratio`x' = 100000*(`ratio`x''<=0) + `ratio`x''*(`ratio`x''>0)
+	ereturn scalar ratio`x'=`ratio`x''
+
+tempfile bootdat
+bootstrap ratio`x'=e(ratio`x'), reps(`mynumreps') seed(10) saving(`bootdat'): myreg`x'
+local mu3`x'=_b[ratio`x']-(`meanelasticity'+.66667)
+
+end 
+
+preserve
+use `bootdat', clear
+sum ratio`x', det
+local mu3`x'_p5=r(p5)-(`meanelasticity'+.66667)
+local mu3`x'_p10=r(p10)-(`meanelasticity'+.66667)
+restore
+}
+
+
+
+
 //
 // Manufacturing Share
 //
@@ -155,7 +181,28 @@ local mu6_p5=r(p5)-(`meanelasticity'+.66667)
 local mu6_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
-//
+////De igual manera, para simplificar lo anterior y llegar al mismo resultado se propone:
+foreach x of varlist $variabless{ 
+cap program drop myreg`x'
+program def myreg`x', eclass
+	qui reg `x' c.manufshare#c.elasticity manufshare
+	local ratio`x' = -_b[c.manufshare]/_b[c.manufshare#c.elasticity]
+	local ratio`x' = 100000*(`ratio`x''<=0) + `ratio`x''*(`ratio`x''>0)
+	ereturn scalar ratio`x'=`ratio`x''
+
+tempfile bootdat
+bootstrap ratio`x'=e(ratio`x'), reps(`mynumreps') seed(10) saving(`bootdat'): myreg`x'
+local mu3`x'=_b[ratio`x']-(`meanelasticity'+.66667)
+
+end 
+
+preserve
+use `bootdat', clear
+sum ratio`x', det
+local mu3`x'_p5=r(p5)-(`meanelasticity'+.66667)
+local mu3`x'_p10=r(p10)-(`meanelasticity'+.66667)
+restore
+}
 //
 // Bartik replication
 //
@@ -271,7 +318,29 @@ local mu4_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
 
-//
+////Asimismo, una manera alternativa de llegar al mismo resultado es:
+foreach x of varlist $variabless{ 
+global variabless s18lognoi_adj rent_new
+cap program drop myreg`x'
+program def myreg`x', eclass
+	qui reg `x' c.bartik_wage c.bartik_wage#c.elasticity, r
+	local ratio`x' =  -_b[c.bartik_wage]/_b[c.bartik_wage#c.elasticity]
+	local ratio`x' = 100000*(`ratio`x''<=0) + `ratio`x''*(`ratio`x''>0)
+	ereturn scalar ratio`x'=`ratio`x''
+
+tempfile bootdat
+bootstrap ratio`x'=e(ratio`x'), reps(`mynumreps') seed(10) saving(`bootdat'): myreg`x'
+local mu3`x'=_b[ratio`x']-(`meanelasticity'+.66667)
+
+end 
+
+preserve
+use `bootdat', clear
+sum ratio`x', det
+local mu3`x'_p5=r(p5)-(`meanelasticity'+.66667)
+local mu3`x'_p10=r(p10)-(`meanelasticity'+.66667)
+restore
+}
 //
 // Results
 //Los mu estimados de estas especificaciones son más pequeños y más alineados con los hallazgos de la literatura previa.En este caso recordamos que no hay 
