@@ -176,3 +176,15 @@ disp "basic unadjusted manufacturing mean: `mu2' p5: `mu2_p5' p10: `mu2_p10'"
 
 disp "basic newrent wageshock mean: `mu3' p5: `mu3_p5' p10: `mu3_p10'"
 di "basic newrent manufacturing mean: `mu4' p5: `mu4_p5' p10: `mu4_p10'"
+// disp "basic unadjusted wageshock mean: `mu1' p5: `mu1_p5' p10: `mu1_p10'"
+//basic unadjusted wageshock mean: 15.63796716272455 p5: -.8279255967387655 p10: -.1719848256358603//
+
+//disp "basic unadjusted manufacturing mean: `mu2' p5: `mu2_p5' p10: `mu2_p10'"
+//basic unadjusted manufacturing mean:  p5:  p10: 
+
+//disp "basic newrent wageshock mean: `mu3' p5: `mu3_p5' p10: `mu3_p10'"
+basic newrent wageshock mean: 99996.79630705307 p5: 3.832046236490299 p10: 21.04070326278119
+
+//di "basic newrent manufacturing mean: `mu4' p5: `mu4_p5' p10: `mu4_p10'"
+basic newrent manufacturing mean: 99996.79630705307 p5: 7.436384644006779 p10: 20.70361372420697//
+
