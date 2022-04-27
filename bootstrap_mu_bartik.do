@@ -138,6 +138,32 @@ local mu4_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 use `alldat', clear
 
+//Todo el proceso anterior se puede realizar de una manera diferente y más corta:
+
+global variabless s18lognoi_adj rent_new
+
+foreach x of varlist $variabless{ 
+
+cap program drop myreg`x'
+program def myreg`x', eclass
+	qui reg `x' c.pca_emp##c.elasticity , absorb(elasticitybin) r 
+	local ratio`x' = -_b[c.pca_emp]/_b[c.pca_emp#c.elasticity]
+	local ratio`x' = 100000*(`ratio`x''<=0) + `ratio`x''*(`ratio`x''>0)
+	ereturn scalar ratio`x'=`ratio`x''
+
+tempfile bootdat
+bootstrap ratio`x'=e(ratio`x'), reps(`mynumreps') seed(10) saving(`bootdat'): myreg`x'
+local mu`x'=_b[ratio`x']-(`meanelasticity'+.66667)
+
+end 
+
+preserve
+use `bootdat', clear
+sum ratio`x', det
+local mu`x'_p5=r(p5)-(`meanelasticity'+.66667)
+local mu`x'_p10=r(p10)-(`meanelasticity'+.66667)
+restore
+}
 
 
 // Bootstrap Bartik
@@ -192,6 +218,30 @@ local mu3_p5=r(p5)-(`meanelasticity'+.66667)
 local mu3_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//De igual manera, el proceso anterior se puede realizar de una manera alternativa y más corta:
+
+foreach x of varlist $variabless{ 
+
+cap program drop myreg`x'
+program def myreg`x', eclass
+	qui reg `x' c.bartik_wage##c.elasticity, absorb(elasticitybin) r 
+	local ratio`x' = -_b[c.bartik_wage]/_b[c.bartik_wage#c.elasticity]
+	local ratio`x' = 100000*(`ratio`x''<=0) + `ratio`x''*(`ratio`x''>0)
+	ereturn scalar ratio`x'=`ratio`x''
+
+tempfile bootdat
+bootstrap ratio`x'=e(ratio`x'), reps(`mynumreps') seed(10) saving(`bootdat'): myreg`x'
+local mu`x'=_b[ratio`x']-(`meanelasticity'+.66667)
+
+end 
+
+preserve
+use `bootdat', clear
+sum ratio`x', det
+local mu4`x'_p5=r(p5)-(`meanelasticity'+.66667)
+local mu5`x'_p10=r(p10)-(`meanelasticity'+.66667)
+restore
+}
 
 
 // IV Specification for appendix
