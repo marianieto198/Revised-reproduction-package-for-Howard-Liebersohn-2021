@@ -1,10 +1,19 @@
-
+/*
+ Author(s): Greg Howard & Jack Liebersohn 
+ Date: 2021
+ 
+ Description:.
+ */
 
 //
 // alternative elasticity measures still yield large estimates
 //
+// Definir semilla para datos aleatorios.
 set seed 15
 
+
+// Crear una base de datos que contenga la variable bartik_shock que sirve como instrumento para indicar la interacción entre la participación de las industrias locales
+// y el crecimiento de está industria para eliminar shoks que afecten el ingreso y el costo de la vivienda simultaneamente. 
 use "..\data\qcew\2000_msa_industry_shares", clear
 keep if agglvl_code==73
 gen bartik_shock = (national_emp2018/national_emp2000)*industryshare
@@ -14,6 +23,7 @@ keep bartik msa
 tempfile bartik
 save `bartik'
 use "..\data\qcew\2000_msa_industry_shares", clear
+// Solo se utilizan datos de las industrias cuyo código sea "31-33" (manufactureras) o "1023" (financieras).
 keep if industry_code=="31-33" | industry_code=="1023"
 keep industryshare msa industry_code
 replace industry_code = "finance" if industry_code=="1023"
@@ -25,24 +35,28 @@ tempfile manuf
 save `manuf'
 
 
-
+// Cambiar el esquema de color para las gráficas. S1color para garantizar fondo de la gráfica de color blanco.
 set scheme s1color
 clear all
+
+// Se utiliza la base de datos combinada y se eliminan las observaciones con missing values en la varialbe elasticity.
 use "../data/combineddata"
 keep if elasticity!=.
 
 
-
+// Se define variable para definir el número de loops/repeticiones que se deben realizar.
 local mynumreps 1000
 	
 gen s18lognoi_adj=s18.lognoi_adj if year==2018
 *gen s17loghpi = s17.loghpi if year==2017
 
+// Por MSA (Área Metropolitana) dejar el valor máximo de s18lognoi_adj rent_new y el primer valor de wageshock elasticity unaval WRLURI.
 collapse (max) s18lognoi_adj rent_new (first) gk_elasticity wageshock elasticity unaval WRLURI, by(msa)
 
 
 summ elasticity if rent_new !=.
 local meanelasticity=r(mean)
+// se remplaza la variable elasticity por la desviación de la media de la elasticidad. 
 replace elasticity=elasticity-`meanelasticity'
 
 merge 1:1 msa using `manuf', nogen
@@ -52,6 +66,8 @@ xtile unavalbin=unaval, n(10)
 xtile wrluribin=WRLURI, n(10)
 mkspline elasticityspline 10=elasticity, disp pct
 
+//mu 1 va a ser el estimador que representa el efecto heterogéneo  de los choques en los salarios por cada sixtil de elasticidad sobre el logaritmo de la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito. 
 cap program drop myreg
 program def myreg, eclass
 	qui reghdfe s18lognoi_adj c.wageshock##c.elasticity , absorb(elasticitybin unavalbin)
@@ -60,6 +76,8 @@ program def myreg, eclass
 	ereturn scalar ratio=`ratio'
 end
 
+// Ahora es necesrio tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados.
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
 local mu1=_b[ratio]-(`meanelasticity'+.66667)
@@ -70,6 +88,8 @@ local mu1_p5=r(p5)-(`meanelasticity'+.66667)
 local mu1_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//mu 2 va a ser el estimador que representa el efecto heterogéneo  de los choques en la participación de las industrias por cada sixtil de elasticidad sobre el logaritmo de la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito. 
 cap program drop myreg2
 program def myreg2, eclass
 	qui reghdfe s18lognoi_adj c.manufshare##c.elasticity , absorb(elasticitybin unavalbin)
@@ -77,7 +97,8 @@ program def myreg2, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
-
+// Ahora es necesrio tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados. 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg2
 local mu2=_b[ratio]-(`meanelasticity'+.66667)
@@ -89,6 +110,8 @@ local mu2_p5=r(p5)-(`meanelasticity'+.66667)
 local mu2_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//mu 3 va a ser el estimador que representa el efecto heterogéneo  de los choques en los salarios por cada sixtil de elasticidad sobre el logaritmo de la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
 cap program drop myreg3
 program def myreg3, eclass
 	qui reghdfe rent_new c.wageshock##c.elasticity , absorb(elasticitybin unavalbin)
@@ -96,7 +119,8 @@ program def myreg3, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
-
+// Ahora es necesrio tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados. 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg3
 local mu3=_b[ratio]-(`meanelasticity'+.66667)
@@ -108,6 +132,8 @@ local mu3_p5=r(p5)-(`meanelasticity'+.66667)
 local mu3_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//mu 4 va a ser el estimador que representa el efecto heterogéneo  de los choques en los salarios por cada sixtil de elasticidad sobre el logaritmo de la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
 reghdfe rent_new c.manufshare##c.elasticity  , absorb(elasticitybin unavalbin)
 cap program drop myreg4
 program def myreg4, eclass
@@ -117,6 +143,8 @@ program def myreg4, eclass
 	ereturn scalar ratio=`ratio'
 end
 
+// Ahora es necesrio tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados. 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg4
 local mu4=_b[ratio]-(`meanelasticity'+.66667)
@@ -132,6 +160,9 @@ restore
 //
 // Gorback-keys elasticity
 //
+//En está sección se realiza la tabla 2 del apendice A. En este caso los valores de mu resultantes de estas especificaciones son uniformemente largas
+//SE utiliza entonces la medida de elasticidad de Gorback-Keys (2020)
+
 cap gen incomechange = wageshock 
 cap gen incomechange_gkelasticity=incomechange*gk_elasticity
 cap gen rent_old = s18lognoi_adj
