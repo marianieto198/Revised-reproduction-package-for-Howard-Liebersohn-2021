@@ -1,7 +1,13 @@
-
+/*
+ Author(s): Greg Howard & Jack Liebersohn 
+ Date: 2021
+ 
+ Description:.
+ */
 //
 // alternative elasticity measures still yield large estimates
 //
+// Definir semilla para datos aleatorios.
 set seed 15
 clear
 // create the PCA of the employment variables using the same code as in oes_lasso do file
@@ -14,6 +20,10 @@ gen rentchange=f18s18.lognoi if year==2000
 keep if year==2000
 //keep msa rentchange elasticity pop amen_index wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change school crime retail road environment jobs jantemp
 //merge 1:1 msa using "../data/oes/oesdata", keep(1 3)
+
+//Se realiza un análisis de componentes principales para describir el conjunto de datos en terminos de nuevas variables no correlacionadas.
+//Esto permite reducir la dimensionalidad de un conjunto de datos.
+
 local empvars="wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change  a_* h_*"
 qui pca `empvars'  if rentchange!=.
 predict pca_emp
@@ -35,7 +45,7 @@ tempfile manuf
 save `manuf'
 
 
-
+// Cambiar el esquema de color para las gráficas. S1color para garantizar fondo de la gráfica de color blanco.
 set scheme s1color
 clear all
 use "../data/combineddata"
@@ -47,6 +57,7 @@ keep if elasticity!=.
 * optionally noise up the estimates
 *replace elasticity = elasticity+rnormal()
 
+// Se define variable para definir el número de loops/repeticiones que se deben realizar.
 local mynumreps 1000
 
 gen s18lognoi_adj=s18.lognoi_adj if year==2018
@@ -77,6 +88,9 @@ tempfile alldat // drop obs missing pca, but save a version of the file before I
 save `alldat' 
 keep if !missing(pca)
 
+//mu 2 va a ser el estimador que representa el efecto heterogéneo  de los componentes principales de las variables relacionadas con los salarios
+//por cada sixtil de elasticidad sobre el logaritmo de la renta ajustada.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
 cap program drop myreg
 program def myreg, eclass
 	qui reg s18lognoi_adj c.pca_emp##c.elasticity , absorb(elasticitybin) r 
@@ -85,6 +99,8 @@ program def myreg, eclass
 	ereturn scalar ratio=`ratio'
 end
 
+// Ahora es necesario tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados.
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
 local mu2=_b[ratio]-(`meanelasticity'+.66667)
@@ -96,6 +112,9 @@ local mu2_p5=r(p5)-(`meanelasticity'+.66667)
 local mu2_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//mu 4 va a ser el estimador que representa el efecto heterogéneo  de los componentes principales de las variables relacionadas con los salarios
+//por cada sixtil de elasticidad sobre la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
 
 cap program drop myreg
 program def myreg, eclass
@@ -105,6 +124,8 @@ program def myreg, eclass
 	ereturn scalar ratio=`ratio'
 end
 
+// Ahora es necesario tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados.
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
 local mu4=_b[ratio]-(`meanelasticity'+.66667)
@@ -120,6 +141,10 @@ use `alldat', clear
 
 
 // Bootstrap Bartik
+//mu 1 va a ser el estimador que representa el efecto heterogéneo  de la variable bartik_wage (interacción entre la participación de las industrias locales
+// y el crecimiento de está industria) por cada sixtil de elasticidad sobre el logaritmo de la renta ajustada.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
+
 cap program drop myreg
 program def myreg, eclass
 	qui reg s18lognoi_adj c.bartik_wage##c.elasticity, absorb(elasticitybin) r 
@@ -127,6 +152,8 @@ program def myreg, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
+// Ahora es necesario tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados.
 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
@@ -139,6 +166,9 @@ local mu1_p5=r(p5)-(`meanelasticity'+.66667)
 local mu1_p10=r(p10)-(`meanelasticity'+.66667)
 restore
 
+//mu 1 va a ser el estimador que representa el efecto heterogéneo  de la variable bartik_wage (interacción entre la participación de las industrias locales
+// y el crecimiento de está industria) por cada sixtil de elasticidad sobre la renta.
+//para esto divide los estimadores beta0 y b1. Cuando b0 y b1 tienen el mismo signo el punto de estimación de mu es infinito.
 
 cap program drop myreg
 program def myreg, eclass
@@ -147,6 +177,9 @@ program def myreg, eclass
 	local ratio = 100000*(`ratio'<=0) + `ratio'*(`ratio'>0)
 	ereturn scalar ratio=`ratio'
 end
+
+// Ahora es necesario tomar el ratio y restarle el valor definido por los autores como lambda (2/3) y se le resta el promedio de la elasticidad.
+//con el bootstrap se extraen samples de los datos para hacer varias estimaciones y obtener una distribución de los mu estimados.
 
 tempfile bootdat
 bootstrap ratio=e(ratio), reps(`mynumreps') seed(10) saving(`bootdat'): myreg
@@ -162,6 +195,11 @@ restore
 
 
 // IV Specification for appendix
+// Se exploran dos componentes de la eslasticidad de la oferta de vivienda the Warthon regulatory Land Use Index (WRLURI) 
+//y la cantidad de tierra no disponible para el desarrollo de proyectos inmobiliarios. Este paso se realiza para solucionar el error de medida en la elasticidad.
+//Se consideran estas dos variables como proxis con erro de medición para hayar la elasticidad real y se usa una como instrumento de la otra para solucionar el 
+// error de medición.
+
 cap gen rent_old = s18lognoi_adj
 gen incomechange=wageshock
 gen bartikunaval = bartik_wage*unaval
