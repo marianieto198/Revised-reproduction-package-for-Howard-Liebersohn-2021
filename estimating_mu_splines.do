@@ -1,3 +1,11 @@
+/*
+Author(s): Greg Howard & Jack Liebersohn
+Date:2021
+
+Description: Script para producir Figure 5, Figure 6 and Table 2
+*/
+
+//color fondo blanco
 
 set scheme s1color
 *cd "C:\Users\glhoward\Box Sync\Research\Why Is the Rent So Darn High\data"
@@ -5,7 +13,9 @@ set scheme s1color
 *cd "C:\Users\liebersohn.1\Box\Why Is the Rent So Darn High\data"
 
 clear all
-
+//Los autores incluyen estas opciones en el script, sin embargo, no proporcionan las bases de datos aquí
+//referenciadas, solo la base de combineddata donde está todo lo necesario para producir las salidas del paper,
+//pero no para producir estos análisis alternativos.
 
 // If we want to try other versions of the wages data
 /*
@@ -33,7 +43,9 @@ keep bartik msa
 tempfile bartik
 save `bartik'
 */
+//A partir de aquí se usa la base combinada que sí nos proporcionan en el paquete de reproducción
 use "..\data\qcew\2000_msa_industry_shares", clear
+//Nuevamente se manejan las mismas industries 
 keep if industry_code=="31-33" | industry_code=="1023"
 keep industryshare msa industry_code
 replace industry_code = "finance" if industry_code=="1023"
@@ -63,10 +75,11 @@ preserve
 collapse (mean) elasticity, by(msa)
 
 
-
+//Deciles
 xtile elasticitybin=elasticity, n(10)
 xtile elasticitybin2=elasticity, n(10)
 
+//splines allow stimating the relationship between y and x as a function composed of linear segments
 mkspline elasticityspline 10=elasticity, disp pct
 
 //local controls="i.elasticitybin"
@@ -78,7 +91,7 @@ save `elasticitybin'
 restore
 merge m:1 msa using `elasticitybin', nogen
 
-
+//Interacciones
 gen manuf_elasticity = manufshare*elasticity
 gen bartik_elasticity = bartik*elasticity
 
@@ -89,9 +102,9 @@ rename elasticitybin bin
 tempfile mean_elasticity
 save `mean_elasticity'
 restore
-
+//Panel de datos
 xtset msa year
-
+//Linear model with many levels of fixed effects - 10
 reghdfe s18.lognoi c.incomechange#i.elasticitybin  if year==2018, absorb(elasticitybin) vce(robust) nocon 
 
 preserve
@@ -107,7 +120,7 @@ save `nonparametric_noi'
 restore
 
 reghdfe s18.lognoi incomechange_elasticity incomechange `controls'  if year==2018, noabsorb vce(robust) nocon
-
+//(possibly) nonlinear 
 nlcom (e0: _b[incomechange]+0*_b[incomechange_elasticity]) ///
 	(e1: _b[incomechange]+1*_b[incomechange_elasticity]) ///
 	(e2: _b[incomechange]+2*_b[incomechange_elasticity]) ///
