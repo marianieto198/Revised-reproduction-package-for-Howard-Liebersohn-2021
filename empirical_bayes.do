@@ -80,7 +80,11 @@ replace scatter_weight=. if rent_new==.
 //graph rename histogram, replace
 //plot with spikes = cambio en renta ajustada, cambio en renta, house price. Scatter de las mismas variables 
 
-twoway rspike rent_new rent hp , lcolor(dkgreen)  ||  scatter rent rent_new hp, msym(square) ///
+//AD - Debido a la escala en la que se presenta este gráfico en el PDF publicado, la diferencia entre cuadrados (rent sin transformar) 
+//y círculos (rent transformado) no es tan fácil de identificar. Por lo tanto, se modifica la figura del índice de renta sin transformar
+//(datos de Trepp) para que contraste más y sea más legible en el documento general.
+
+twoway rspike rent_new rent hp , lcolor(dkgreen)  ||  scatter rent rent_new hp, msym(triangle) ///
 	mcolor(dkgreen orange_red) ytitle("Rent Change 2000-2018") xtitle("House Price Change 2000-2017") ///
 	legend(label(2 "Rent index based on Trepp data alone") label(3 "Post-empirical-Bayes rent index") col(1) order(2 3))
 graph export "../exhibits/empirical_bayes_shrinkage.pdf", as(pdf) replace
