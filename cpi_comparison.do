@@ -40,12 +40,14 @@ replace logrentcpi=logrentcpi-logcpi
 
 //Preparación para Figura B1
 
+//AD- Para ambos casos, en el paper los símbolos aparecen desproporcionados en la salida final, para mejorar este aspecto, se cambia el tamaño de los mismos en msym
+
 //Cambio en rentas ajustado
-scatter s17.lognoi_adj s17.logrentcpi if year==2017 & s17.logrentcpi!=. [w=pop], msym(Oh) || line s17.logrentcpi s17.logrentcpi, ///
+scatter s17.lognoi_adj s17.logrentcpi if year==2017 & s17.logrentcpi!=. [w=pop], msym(oh) || line s17.logrentcpi s17.logrentcpi, ///
 	legend(off) ytitle("Log NOI Change") xtitle("Log CPI Rents Change") name(rent_raw) nodraw
 
 //Cambio en rentas sin ajustar
-scatter rent_new s17.logrentcpi if year==2017 & s17.logrentcpi!=. [w=pop], msym(Oh) || line s17.logrentcpi s17.logrentcpi, ///
+scatter rent_new s17.logrentcpi if year==2017 & s17.logrentcpi!=. [w=pop], msym(oh) || line s17.logrentcpi s17.logrentcpi, ///
 	legend(off) ytitle("Rent Change") xtitle("Log CPI Rents Change") name(rent) nodraw
 graph combine rent rent_raw
 graph export "../exhibits/cpi_comparison.pdf", as(pdf) replace
