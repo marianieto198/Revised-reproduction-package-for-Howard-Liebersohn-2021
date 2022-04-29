@@ -1,4 +1,17 @@
+/*
+Author(s): Greg Howard & Jack Liebersohn
+Date:2021
+
+*/
+
+//Se establece fondo blanco para las salidas, sin embargo de este dofile en específico no salen gráficas
+
 set scheme s1color
+
+//Cálculo geochannel
+//Notar que se inicia con el año 2000. Las variables que se mantienen son logaritmo de la población, 
+//logaritmo de la renta, población, elasticidad, año y una variable dummy que toma el valor de 1 si en esa
+//ciudad se mide el CPI. De lo contrario toma el valor de 3.
 
 cap program drop calculate_geo_channel
 program def calculate_geo_channel, rclass
@@ -49,9 +62,9 @@ program def calculate_geo_channel, rclass
 		corr SLoverSML dlogR [w=pop], cov
 		local covR=r(cov_12)
 		summ SLoverSML [w=pop]
-		local denom=r(mean)
+		local denom=r(mean) //denominador= promedio de la renta
 
-		local geochannel=(`covL'-`covR')/`denom'
+		local geochannel=(`covL'-`covR')/`denom' //geochannel es la diferencia entre la covarianza de población menos la covarianza de renta, sobre el promedio de la renta 
 		
 		local dustar=-(`covL'+`mu'*`covR')/`denom'-`dlogLbar'-`mu'*`dlogRmean'
 		gen rdiff=(dlogL+`mu'*dlogR+`dustar')/(elasticity+`mu'+`lambda')
@@ -83,3 +96,4 @@ end
 foreach set in ".34 1" "1.07 1" "1.31 1" "2.5 1" "5.1 1" "inf 1" "inf `=2/3'" "inf .5" "inf 0" {
 	calculate_geo_channel `set'
 }
+
