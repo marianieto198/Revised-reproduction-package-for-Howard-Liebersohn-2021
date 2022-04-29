@@ -97,3 +97,16 @@ foreach set in ".34 1" "1.07 1" "1.31 1" "2.5 1" "5.1 1" "inf 1" "inf `=2/3'" "i
 	calculate_geo_channel `set'
 }
 
+//AD - No se encuentran errores en el script, sin embargo, se copian los resultados aquí mismo por si eventualmente se presentan problemas en la salida de la tabla debido a falta de información original.
+
+// Resultados
+/*mu: 0.34 lambda: 1.00 geochannel: 0.01 geochannel_CPI: 0.01 pctavg: 0.08 pctcpi: 0.09
+mu: 1.07 lambda: 1.00 geochannel: 0.01 geochannel_CPI: 0.03 pctavg: 0.17 pctcpi: 0.23
+mu: 1.31 lambda: 1.00 geochannel: 0.02 geochannel_CPI: 0.04 pctavg: 0.20 pctcpi: 0.26
+mu: 2.50 lambda: 1.00 geochannel: 0.02 geochannel_CPI: 0.05 pctavg: 0.28 pctcpi: 0.38
+mu: 5.10 lambda: 1.00 geochannel: 0.03 geochannel_CPI: 0.07 pctavg: 0.36 pctcpi: 0.50
+mu: inf lambda: 1.00 geochannel: 0.04 geochannel_CPI: 0.11 pctavg: 0.53 pctcpi: 0.74
+mu: inf lambda: 0.67 geochannel: 0.05 geochannel_CPI: 0.11 pctavg: 0.58 pctcpi: 0.77
+mu: inf lambda: 0.50 geochannel: 0.05 geochannel_CPI: 0.11 pctavg: 0.61 pctcpi: 0.79
+mu: inf lambda: 0.00 geochannel: 0.06 geochannel_CPI: 0.12 pctavg: 0.73 pctcpi: 0.85
+*/
