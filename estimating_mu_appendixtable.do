@@ -1,3 +1,11 @@
+/*
+Author(s): Greg Howard & Jack Liebersohn
+Date:2021
+
+Description: Script para producir Tabla A1 - Efectos heterogéneos de cambio en el ingreso sobre costos de housing, por elasticidad 
+*/
+
+//Fondo color blanco para la salida
 
 set scheme s1color
 *cd "C:\Users\glhoward\Box Sync\Research\Why Is the Rent So Darn High\data"
@@ -15,16 +23,24 @@ clear all
 // drop year
 // cap log close
 *log using ../dofiles/oes_lasso.txt, text replace
+
+//Especificar valor inicial
 set seed 10
+//Se usa combineddata como en la mayoría de dofiles
 use "../data/combineddata"
+//Cambio en población para año 2000
 gen epop_change=f18s18.epop if year==2000
+//Panel de datos
 xtset msa year
+//Utilizan el cambio en renta transformado para el año 2000
 gen rentchange=rent_new if year==2000
 //merge m:1 msa using ../data/amenities_measures/amen_index_all, keep(1 3) nogen
 keep if year==2000
 //keep msa rentchange elasticity pop amen_index wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change school crime retail gk_elasticity road environment jobs jantemp 
 //merge 1:1 msa using "../data/oes/oesdata", keep(1 3)
+
 local empvars="wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change  a_* h_*"
+//Principal component analysis si hay missing values en variables distintas a rentchange (rent transformada año 2000) - predecir
 qui pca `empvars'  if rentchange!=.
 predict pca_emp
 keep msa pca_emp
@@ -34,17 +50,24 @@ save `pca'
 // manufacturing/bartik shock
 use "..\data\qcew\2000_msa_industry_shares", clear
 keep if agglvl_code==73
+
+//Bartik shock predicts local job growth using the interaction of local labor shares and industry-specific wage growth in other regions. 
 gen bartik_inc = (national_emp2018/national_emp2000)*industryshare
 collapse (sum) /*bartik*/ industryshare, by(msa)
 *replace bartik_wage = log(bartik_wage + 1-industryshare) // "missing" industry isnt growing
 keep msa
 tempfile bartik
 save `bartik'
+
+//En este dofile se usan los industry shares del Quarterly Census of Employment and Wages (u)
 use "..\data\qcew\2000_msa_industry_shares", clear
+//Se mantienen industrias específicas (string)
 keep if industry_code=="31-33" | industry_code=="1023"
+//En la base de datos no es claro a qué corresponden los códigos de estas industries, pero a continuación se especifica (finance o manufshare)
 keep industryshare msa industry_code
 replace industry_code = "finance" if industry_code=="1023"
 replace industry_code ="manufshare" if industry_code == "31-33"
+//i (lugar - área metropolitana) 
 reshape wide industryshare, i(msa) j(industry_code) string
 rename industryshare* *
 *merge 1:1 msa using `bartik', nogen
@@ -64,17 +87,19 @@ keep if elasticity!=.
 *replace elasticity = elasticity+rnormal()
 
 local mynumreps 500
+//Se generan variables diferenciadas para 2017 y 2018. Tener en cuenta que en general el análisis se ha realizado hasta 2017 hasta el momento en el paper
 
 gen s18lognoi_adj=s18.lognoi_adj if year==2018
 gen s17loghpi = s17.loghpi if year==2017
 
-
+//Preparación de variables para la tabla. Se destaca que en este caso sí se esta incluyendo la elasticidad 
 collapse (max) s18lognoi_adj s17loghpi rent_new (first) bartik* wageshock gk_elasticity elasticity unaval WRLURI, by(msa)
 
 summ elasticity if rent_new !=.
 local meanelasticity=r(mean)
 replace elasticity=elasticity-`meanelasticity'
 
+//Gorback-Keys elasticity
 summ gk_elasticity if rent_new !=.
 local meangk=r(mean)
 replace gk_elasticity=gk_elasticity-`meangk'
@@ -88,6 +113,8 @@ predict elasticity_fitted
 qui sum elasticity_fitted
 replace elasticity_fitted =elasticity_fitted -`=r(mean)'
 reg elasticity_fitted unaval
+
+//Elast. deciles
 xtile elastfitbin=elasticity_fitted , n(10)
 
 
@@ -100,6 +127,7 @@ xtile unavalbin=unaval, n(10)
 
 xtile gkbin=gk_elasticity, n(10)
 
+//Generar las variables finales y las interacciones 
 gen incomechange=wageshock
 gen bartikelasticity=bartik_wage*elasticity
 gen incomeunaval = incomechange*unaval
@@ -113,7 +141,7 @@ gen bartikunaval = bartik_wage*unaval
 
 gen incomeelast_fit = incomechange*elasticity_fitted
 
-
+//Descripción de las variables tal como aparecerá en la tabla
 label var bartikelasticity "Bartik by Elast."
 label var bartik_wage "Bartik Shock"
 label var incomeunaval "Income Change by Unavailable Land"
@@ -143,7 +171,7 @@ label var s18lognoi_adj "Rent (undadjusted)"
 label var rent_new "Rent"
 
 
-
+//Regresiones
 reghdfe s18lognoi_adj incomechange elasticity incomechange_elasticity,  absorb(unavalbin elasticitybin)
 est sto noi_unaval
 estadd local elast_control "X"
@@ -195,6 +223,10 @@ est sto elast_fit_rentnew
 estadd local elast_control "X"
 estadd local unaval_control "X"
 
+//Notar que se genera una tabla inferior en la que se marcan con "X" si cada una de las regresiones concuerda :
+//elasticity deciles, unavailable deciles, gorback-keys elasticity (estimaciones de estos autores en 2020)
+
+//Preparación para salida
 
 esttab rent_new_unaval rent_new_manufunaval rent_new_pca  noi_unaval noi_manufunaval noi_pca rent_new_gkelast noi_gkelast elast_fit_rentnew elast_fit_noi  /*noi_bartik hpi_bartik*/ ///
 	using "../exhibits/estimating_mu_appendixtable.tex", drop(elasticity _cons) se tex replace label star(* .1 ** .05 *** .01) ///
