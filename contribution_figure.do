@@ -84,9 +84,11 @@ local dlogRmean34=`dlogRmean'/4*3
 replace mu=11 if mu==.
 gsort mu
 
-line geochannel mu if lambda==0 , lpattern(shortdash) || line geochannel mu if abs(lambda-.66667)<.01 || line geochannel mu if lambda==1, lpattern(dash) ///
+//AD - Se cambiará el patrón de las líneas debido a que en el paper se publicaron todas en línea continua y no dashed,
+//como aparece en el script suministrado originalmente. Así mismo, se cambia el patrón de la línea que indica el 100% de incremento en renta
+line geochannel mu if lambda==0 , lpattern(solid) || line geochannel mu if abs(lambda-.66667)<.01 || line geochannel mu if lambda==1, lpattern(solid) ///
 	|| scatteri `muinftylambda0' `maxmuplusone', color(forest_green) || scatteri `muinftylambda23' `maxmuplusone', color(orange) || scatteri `muinftylambda1' `maxmuplusone', color(navy) ///
-	|| line dlogRmean mu, yaxis(2) lcolor(maroon) lpattern(dot) ytitle("Log-Points") xtitle("{&mu}") ///
+	|| line dlogRmean mu, yaxis(2) lcolor(maroon) lpattern(dash) ytitle("Log-Points") xtitle("{&mu}") ///
 	legend(order(1 2 3 7) label(1 "{&lambda}=0") label(2 "{&lambda}=2/3") label(3 "{&lambda}=1") label(7 "Total Rent Increase")) ///
 	yscale(range(0 .1)) ylabel(#4) yline(0, lcolor(gs10))  xline(`maxmuplushalf', lcolor(gs10) lpattern(dot)) xlabel( 0 "0" 5 "5" 10 "10" 11 "{&infinity}") ///
 	yscale(range(0 .1) axis(2))	ylabel(0 "0" `dlogRmean14' "25" `dlogRmean12' "50" `dlogRmean34' "75" `dlogRmean' "100", axis(2)) ytitle("Percent of Rent Increase", axis(2))
