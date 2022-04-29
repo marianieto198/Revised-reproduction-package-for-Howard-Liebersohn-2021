@@ -1,24 +1,41 @@
+/*
+Author(s): Greg Howard & Jack Liebersohn
+Date:2021
+
+Description: Script para producir Figure C1 y Table C1
+*/
+
+
 clear all
+//Nuevamente se trabaja con combineddata
 use "../data/combineddata"
+//Population change elasticity para año 2000
 gen epop_change=f18s18.epop if year==2000
+//Panel de datos
 xtset msa year
 *gen rentchange=f18s18.lognoi if year==2000
+//índice de rentas ajustado para año 2000
 gen rentchange=rent_new if year==2000
+
+//Este merge no se corre porque no contamos con esos datos originales, ya vienen listos en el combineddata
 //merge m:1 msa using "../data/amenities_measures/amen_index_all", keep(1 3) nogen
+//Para este caso solo se mantienen los datos del año 2000
 keep if year==2000
 //keep msa rentchange elasticity pop amen_index wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change school crime retail road environment jobs jantemp
-
+//Valor del percentil 99 de elasticidad si msa es missing
 replace elasticity=5.35 if msa==9999
-
+//Variables de amenities y employment (wages)
 local amenityvars="school crime retail road environment jobs jantemp"
 local empvars="wageshock wageshock_college wageshock_level dsoi_income dsoi_income_level  epop_change  a_* h_*"
 
 local allvars="`amenityvars' `empvars'"
 
 
-
+//Ya nos lo proporcionan en el paquete de reproducción
 file open table_lasso using "../exhibits/table_lasso.tex", write replace
 
+//Producción de Tabla C1 (se analiza, para las variables descritas arriba, qué porcentaje del canal de location se explica,
+//también se analiza el r2 de los cambios en renta para cada grupo de variables)
 
 file write table_lasso "\begin{tabular}{llccc}" _n
 file write table_lasso "\hline \hline" _n
@@ -29,7 +46,8 @@ file write table_lasso "\hline" _n
 file write table_lasso "\\" _n
 
 
-
+//Estimaciones 
+//Elasticidad contra cambio en rentas 
 corr elasticity rentchange [w=pop], cov
 local denom=r(cov_12)
 disp `denom'
@@ -58,10 +76,12 @@ foreach xxx in amenityvars empvars allvars{
 	
 	if "`xxx'"=="amenityvars" file write table_lasso "Amenities & "
 	if "`xxx'"=="empvars" file write table_lasso "Wages & "
-	if "`xxx'"=="allvars" file write table_lasso "Both & "
+	if "`xxx'"=="allvars" file write table_lasso "Both & " //formato
 	
 		
-	lassoregress rentchange `varset' [w=pop]
+	lassoregress rentchange `varset' [w=pop] //Lasso - method for selecting and fitting covariates that appear in the model (some of the 
+	//variables belong in the model). También se corre con OLS en la misma tabla pero se observa que el número de regresores ajustado en LASSO 
+	//es menor, logrando el mismo R2.
 	local lasso_`xxx'=e(varlist_nonzero)
 	
 	reg rentchange `=e(varlist_nonzero)' [w=pop]
@@ -101,8 +121,8 @@ file write table_lasso "\hline \hline" _n "\end{tabular}" _n _n
 
 
 file close table_lasso
-
-
+//Fin tabla
+//Se suministra el siguiente script pero los autores lo omiten 
 //
 //
 // pca `amenityvars' if rentchange!=.
@@ -169,19 +189,19 @@ file close table_lasso
 //
 // log close
 
-
+//Principal component analysis
 pca `amenityvars'
 predict pca_amen
 
 pca `empvars'
 predict emp_index
 
-
+//sixtiles 
 xtile elasticitybin= elasticity [w=pop] if rentchange!=., n(6) 
 
 preserve
 collapse (mean) pca_amen  emp_index elasticity [w=pop], by(elasticitybin)
-
+//amen: amenities; index: wage
 rename pca_amen amen_mean
 rename emp_index emp_mean
 rename elasticity elasticity_mean
@@ -194,7 +214,8 @@ gsort elasticity
 drop if elasticitybin==. 
 
 
-
+//Preparación para salida
+//Aplica para valores de elasticidad menores a 10
 scatter pca_amen elasticity [w=pop] if  elasticity<10, msym(Oh) msize(1) || ///
 	scatter amen_mean elasticity_mean, ///
 	msize(2) c(l) yline(0, lcolor(gs8)) yscale(range(-.5 1)) ///
