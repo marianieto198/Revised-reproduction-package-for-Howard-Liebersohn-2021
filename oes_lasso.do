@@ -197,7 +197,10 @@ pca `empvars'
 predict emp_index
 
 //sixtiles 
-xtile elasticitybin= elasticity [w=pop] if rentchange!=., n(6) 
+//AD- Si bien en el script original se manejan sixtiles, se propone cambiarlo
+//a deciles para dejar que los datos hablen más, ya que se evidencia una forma funcional 
+//con más movimiento en este caso.
+xtile elasticitybin= elasticity [w=pop] if rentchange!=., n(10) 
 
 preserve
 collapse (mean) pca_amen  emp_index elasticity [w=pop], by(elasticitybin)
