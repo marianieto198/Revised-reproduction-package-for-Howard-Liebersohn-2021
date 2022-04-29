@@ -61,8 +61,9 @@ label var bartik_wageelasticity "Bartik by Elast."
 label var bartik_wage "Bartik Shock"
 
 //Distinguir entre rents sin ajustar y ajustadas. 
+//AD- Para mantener la nomenclatura usada en la tabla principal de resultados A1, se cambiará el label de rent (raw) por rent (unadjusted)
 gen rents=s18.lognoi 
-label var rents "Rent (raw)"
+label var rents "Rent (unadjusted)"
 label var rent_new "Rent"
 
 //Regresiones (para los años 2017 y 2018 según índice de rentas ajustado o no)
