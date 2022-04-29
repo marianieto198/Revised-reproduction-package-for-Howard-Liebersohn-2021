@@ -228,6 +228,8 @@ estadd local unaval_control "X"
 
 //Preparación para salida
 
+//AD- A esta tabla le hace falta una nota al pie para quedar como la que está publicada, se agrega.
+
 esttab rent_new_unaval rent_new_manufunaval rent_new_pca  noi_unaval noi_manufunaval noi_pca rent_new_gkelast noi_gkelast elast_fit_rentnew elast_fit_noi  /*noi_bartik hpi_bartik*/ ///
 	using "../exhibits/estimating_mu_appendixtable.tex", drop(elasticity _cons) se tex replace label star(* .1 ** .05 *** .01) ///
-	addnote("Robust standard errors.")  scalars("elast_control Elast. Deciles" "unaval_control Unavail. Deciles" "gk_control Gorback-Keys Elast.")
+	addnote("Robust standard errors.") addnote("Standard errors in parentheses.")  scalars("elast_control Elast. Deciles" "unaval_control Unavail. Deciles" "gk_control Gorback-Keys Elast.")
