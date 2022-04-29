@@ -130,9 +130,12 @@ gen mu2=11 if mu==.
 local dlogRmean = 6.2
 
 //Se procede a preparar la salida de la gráfica. 
-line supplycontribution_new mu if lambda==0 ,lpattern(shortdash) || line supplycontribution_new mu if abs(lambda-2/3)<.01 || ///
-	line supplycontribution_new mu if lambda==1 , lpattern(dash)  || scatter supplycontribution_new mu2 if lambda==1, color(navy) || ///
-	scatter supplycontribution_new mu2 if lambda==0, color(forest_green)  || scatter supplycontribution_new mu2 if abs(lambda-2/3)<.01, color(dkorange) ///
+
+//AD- Como en otros casos, la gráfica no sale exactamente como aparece en el paper, por lo tanto, se corrige lo necesario:  
+
+line supplycontribution_new mu if lambda==0 ,lpattern(solid) || line supplycontribution_new mu if abs(lambda-2/3)<.01 || ///
+	line supplycontribution_new mu if lambda==1 , lpattern(solid)  || scatter supplycontribution_new mu2 if lambda==1, color(forest_green) || ///
+	scatter supplycontribution_new mu2 if lambda==0, color(navy)  || scatter supplycontribution_new mu2 if abs(lambda-2/3)<.01, color(orange) ///
 	, ytitle("Contribution of Housing Supply") xtitle("{&mu}") legend(order(1 2 3) label(1 "{&lambda}=0") label(2 "{&lambda}=2/3") label(3 "{&lambda}=1")) ///
 	yscale(range(0 .1)) ylabel(#4) yline(0, lcolor(gs10)) yline(`dlogRmean', lcolor(maroon) lpattern(dash)) xline(10.5, lcolor(gs10) lpattern(dot))   xlabel( 0 "0" 5 "5" 10 "10" 11 "{&infinity}") name(supply,replace)
 graph export "../exhibits/housingsupplycontribution.pdf", replace
