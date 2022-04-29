@@ -167,7 +167,8 @@ gen pcaelasticity=pca_emp*elasticity
 label var pcaelasticity "PCA Emp by Elasticity"
 label var pca_emp "PCA Employment"
 
-label var s18lognoi_adj "Rent (undadjusted)"
+//AD- Se corregirá el typo del label, el cual está haciendo que salga mal la tabla
+label var s18lognoi_adj "Rent (unadjusted)"
 label var rent_new "Rent"
 
 
