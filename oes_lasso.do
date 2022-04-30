@@ -219,9 +219,10 @@ drop if elasticitybin==.
 
 //Preparación para salida
 //Aplica para valores de elasticidad menores a 10
+//AD- Se cambia el color de la salida para mejor comprensión
 scatter pca_amen elasticity [w=pop] if  elasticity<10, msym(Oh) msize(1) || ///
 	scatter amen_mean elasticity_mean, ///
-	msize(2) c(l) yline(0, lcolor(gs8)) yscale(range(-.5 1)) ///
+	msize(2) c(l) yline(0, lcolor(red)) yscale(range(-.5 1)) ///
 	ytitle("Amenities, 1st Principal Component") legend(off) name(rents, replace)
 
 graph export "../exhibits/binscatter_amenity_pc.pdf", as(pdf) replace
