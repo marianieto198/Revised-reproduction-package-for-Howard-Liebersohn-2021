@@ -1,3 +1,9 @@
+/*
+Author(s): Greg Howard & Jack Liebersohn
+Date:2021
+
+Description: Script para producir cada una de las gráficas y tablas tanto del paper como de los anexos
+*/
 
 // Figure 1
 do "bar_pop"
