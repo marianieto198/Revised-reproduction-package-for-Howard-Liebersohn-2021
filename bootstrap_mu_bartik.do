@@ -300,3 +300,47 @@ di "basic2 oldrent pca mean: `mu2' p5: `mu2_p5' p10: `mu2_p10'"
 * IV specification for appendix
 di "basic2 newrent IV  mean: `rent_new_mean' p5: `rent_new_p5' p10: `rent_new_p10'"
 di "basic2 oldrent IV mean: `rent_old_mean' p5: `rent_old_p5' p10: `rent_old_p10'"
+
+
+  gen mu3_p10=`mu3_p10'
+
+gen mu3=99996.79630705307 
+
+gen mu6=`mu1' 
+
+gen mu6_p10=`mu1_p10'
+
+gen mu1=99996.79630705307 
+
+gen mu1_p10=62.3625626225224
+
+gen mu2=99996.79630705307 
+
+gen  mu2_p10=20.70361372420697
+
+gen mu4=15.63796716272454
+
+gen mu4_p10=-0.1719848256358603
+
+gen mu5=99996.79630705307
+
+gen mu5_p10=21.04070326278119
+
+label variable mu1 "(1)"
+
+ label variable mu2 "(2)"
+ 
+  label variable mu3 "(3)"
+  label variable mu4 "(4)"
+  label variable mu5 "(5)"
+
+
+eststo: estpost tabstat mu3 mu1 mu2 mu4 mu5 mu1_p10 mu2_p10 mu3_p10 mu4_p10 mu5_p10 mu6_p10 ,  stat(mean)
+esttab . using summary.tex, cells("mu3 mu1 mu2 mu4 mu5 mu1_p10 mu2_p10 mu3_p10 mu4_p10 mu5_p10 mu6_p10 ") label replace
+
+
+//La Tabla 3 muestra las 𝜇 implícitas de la regresión de la Tabla 2. Esta tabla no es construida por parte de los autores directamente en el código, 
+//fue hecha a mano. Analizando las maneras en las que se podría generar la tabla automáticamente en el código se encuentra que es complicado dada la 
+//diferencia de procesos bajo los cuales surgen los escalares, sin embargo, en el código se propone una exportación a Latex que requiere de una mínima 
+//manipulación posterior para poder obtener una gráfica identica a la publicada en el paper. Por lo tanto, la tabla se genera en Latex, con la diferencia 
+//de que no aproximamos los valores como sí lo hicieron los autores para que sea más claro para el lector. 
